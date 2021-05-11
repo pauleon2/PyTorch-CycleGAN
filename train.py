@@ -9,11 +9,13 @@ from torch.autograd import Variable
 from PIL import Image
 import torch
 
+# for improved logging
+import wandb
+
 from models import Generator
 from models import Discriminator
 from utils import ReplayBuffer
 from utils import LambdaLR
-from utils import Logger
 from utils import weights_init_normal
 from datasets import ImageDataset
 
@@ -34,6 +36,10 @@ print(opt)
 
 if torch.cuda.is_available() and not opt.cuda:
     print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+
+# Initialize the logger
+wandb.init(project='dl4ia-groupassignment')
+wandb.config.params = 'default'
 
 ###### Definition of variables ######
 # Networks
@@ -79,16 +85,14 @@ fake_A_buffer = ReplayBuffer()
 fake_B_buffer = ReplayBuffer()
 
 # Dataset loader
-transforms_ = [ transforms.Resize(int(opt.size*1.12), Image.BICUBIC), 
-                transforms.RandomCrop(opt.size), 
+transforms_ = [ transforms.Resize(int(opt.size*1.12), transforms.InterpolationMode.BICUBIC), 
+                transforms.RandomCrop(opt.size),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)) ]
 dataloader = DataLoader(ImageDataset(opt.dataroot, transforms_=transforms_, unaligned=True), 
                         batch_size=opt.batchSize, shuffle=True, num_workers=opt.n_cpu)
 
-# Loss plot
-logger = Logger(opt.n_epochs, len(dataloader))
 ###################################
 
 ###### Training ######
@@ -169,11 +173,13 @@ for epoch in range(opt.epoch, opt.n_epochs):
 
         optimizer_D_B.step()
         ###################################
-
-        # Progress report (http://localhost:8097)
-        logger.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
-                    'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}, 
-                    images={'real_A': real_A, 'real_B': real_B, 'fake_A': fake_A, 'fake_B': fake_B})
+        # Only log every 25 steps
+        if i % 25 == 0:
+            # Progress report saved to wandb
+            wandb.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B), 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
+                        'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'epoch': epoch, 'iteration': i})
+            wandb.log({'img': [wandb.Image(real_A, caption="Real class A"), wandb.Image(fake_B, caption="Fake class B"),
+                            wandb.Image(real_B, caption="Real class B"), wandb.Image(fake_A, caption="Fake class A")]})
 
     # Update learning rates
     lr_scheduler_G.step()

@@ -7,11 +7,24 @@ Code is intended to work with ```Python 3.6.x```, it hasn't been tested with pre
 ### [PyTorch & torchvision](http://pytorch.org/)
 Follow the instructions in [pytorch.org](http://pytorch.org) for your current setup
 
-### [Visdom](https://github.com/facebookresearch/visdom)
-To plot loss graphs and draw images in a nice web browser view
+~~### [Visdom](https://github.com/facebookresearch/visdom)
+To plot loss graphs and draw images in a nice web browser view~~
+
+Not used any more
+
+### [WandB](https://wandb.ai)
+
 ```
-pip3 install visdom
+pip install wandb
 ```
+
+The login with your API token into weights and biases:
+
+```
+wandb login
+```
+
+The results are automatically plotted
 
 ## Training
 ### 1. Setup the dataset
