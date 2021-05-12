@@ -31,7 +31,7 @@ parser.add_argument('--input_nc', type=int, default=3, help='number of channels 
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
 parser.add_argument('--cuda', action='store_true', help='use GPU computation')
 parser.add_argument('--n_cpu', type=int, default=2, help='number of cpu threads to use during batch generation')
-parser.add_argument('--log_interval', type=int, default=25, help='How often image examples should be logged to wandb')
+parser.add_argument('--log_interval', type=int, default=250, help='How often image examples should be logged to wandb')
 opt = parser.parse_args()
 print(opt)
 
@@ -188,8 +188,8 @@ for epoch in range(opt.epoch, opt.n_epochs):
     lr_scheduler_D_B.step()
 
     # Save models checkpoints
-    torch.save(netG_A2B.state_dict(), 'output/netG_A2B.pth')
-    torch.save(netG_B2A.state_dict(), 'output/netG_B2A.pth')
-    torch.save(netD_A.state_dict(), 'output/netD_A.pth')
-    torch.save(netD_B.state_dict(), 'output/netD_B.pth')
+    torch.save(netG_A2B.state_dict(), 'drive/MyDrive/models/netG_A2B.pth')
+    torch.save(netG_B2A.state_dict(), 'drive/MyDrive/models/netG_B2A.pth')
+    torch.save(netD_A.state_dict(), 'drive/MyDrive/models/netD_A.pth')
+    torch.save(netD_B.state_dict(), 'drive/MyDrive/models/netD_B.pth')
 ###################################
