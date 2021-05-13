@@ -31,7 +31,8 @@ parser.add_argument('--input_nc', type=int, default=3, help='number of channels 
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
 parser.add_argument('--cuda', action='store_true', help='use GPU computation')
 parser.add_argument('--n_cpu', type=int, default=2, help='number of cpu threads to use during batch generation')
-parser.add_argument('--log_interval', type=int, default=250, help='How often image examples should be logged to wandb')
+parser.add_argument('--log_interval', type=int, default=500, help='How often image examples should be logged to wandb')
+parser.add_argument('--load_model', action="store_true", default=False, help='loading a model from the folder')
 opt = parser.parse_args()
 print(opt)
 
@@ -48,6 +49,12 @@ netG_A2B = Generator(opt.input_nc, opt.output_nc)
 netG_B2A = Generator(opt.output_nc, opt.input_nc)
 netD_A = Discriminator(opt.input_nc)
 netD_B = Discriminator(opt.output_nc)
+    
+if opt.load_model:
+    netG_A2B = netG_A2B.load_state_dict(torch.load("drive/MyDrive/models/netG_A2B.pth"))
+    netG_B2A = netG_B2A.load_state_dict(torch.load("drive/MyDrive/models/netG_B2A.pth"))
+    netD_A = netD_A.load_state_dict(torch.load("drive/MyDrive/models/netD_A.pth"))
+    netD_B = netD_B.load_state_dict(torch.load("drive/MyDrive/models/netD_B.pth"))
 
 if opt.cuda:
     netG_A2B.cuda()
@@ -179,8 +186,7 @@ for epoch in range(opt.epoch, opt.n_epochs):
                     'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B), 'epoch': epoch, 'iteration': i})
         # Only log every 25 steps
         if i % opt.log_interval == 0:
-            wandb.log({'img': [wandb.Image(real_A, caption="Real class A"), wandb.Image(fake_B, caption="Fake class B"), 
-                               wandb.Image(real_B, caption="Real class B"), wandb.Image(fake_A, caption="Fake class A")]})
+            wandb.log({'img': [wandb.Image(fake_B, caption="Fake class B"), wandb.Image(fake_A, caption="Fake class A")]})
 
     # Update learning rates
     lr_scheduler_G.step()
