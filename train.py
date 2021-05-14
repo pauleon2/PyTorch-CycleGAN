@@ -55,17 +55,17 @@ if opt.load_model:
     netG_B2A = netG_B2A.load_state_dict(torch.load("drive/MyDrive/models/netG_B2A.pth"))
     netD_A = netD_A.load_state_dict(torch.load("drive/MyDrive/models/netD_A.pth"))
     netD_B = netD_B.load_state_dict(torch.load("drive/MyDrive/models/netD_B.pth"))
+else:
+    netG_A2B.apply(weights_init_normal)
+    netG_B2A.apply(weights_init_normal)
+    netD_A.apply(weights_init_normal)
+    netD_B.apply(weights_init_normal)
 
 if opt.cuda:
     netG_A2B.cuda()
     netG_B2A.cuda()
     netD_A.cuda()
     netD_B.cuda()
-
-netG_A2B.apply(weights_init_normal)
-netG_B2A.apply(weights_init_normal)
-netD_A.apply(weights_init_normal)
-netD_B.apply(weights_init_normal)
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
