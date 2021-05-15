@@ -49,23 +49,28 @@ netG_A2B = Generator(opt.input_nc, opt.output_nc)
 netG_B2A = Generator(opt.output_nc, opt.input_nc)
 netD_A = Discriminator(opt.input_nc)
 netD_B = Discriminator(opt.output_nc)
-    
-if opt.load_model:
-    netG_A2B = netG_A2B.load_state_dict(torch.load("drive/MyDrive/models/netG_A2B.pth"))
-    netG_B2A = netG_B2A.load_state_dict(torch.load("drive/MyDrive/models/netG_B2A.pth"))
-    netD_A = netD_A.load_state_dict(torch.load("drive/MyDrive/models/netD_A.pth"))
-    netD_B = netD_B.load_state_dict(torch.load("drive/MyDrive/models/netD_B.pth"))
-else:
-    netG_A2B.apply(weights_init_normal)
-    netG_B2A.apply(weights_init_normal)
-    netD_A.apply(weights_init_normal)
-    netD_B.apply(weights_init_normal)
+
 
 if opt.cuda:
     netG_A2B.cuda()
     netG_B2A.cuda()
     netD_A.cuda()
     netD_B.cuda()
+    
+if opt.load_model:
+    netG_A2B_checkpoint = torch.load("drive/MyDrive/models/netG_A2B.pth")
+    netG_A2B.load_state_dict(netG_A2B_checkpoint)
+    netG_B2A_checkpoint = torch.load("drive/MyDrive/models/netG_B2A.pth")
+    netG_B2A.load_state_dict(netG_B2A_checkpoint)
+    netD_A_checkpoint = torch.load("drive/MyDrive/models/netD_A.pth")
+    netD_A.load_state_dict(netD_A_checkpoint)
+    netD_B_checkpoint = torch.load("drive/MyDrive/models/netD_B.pth")
+    netD_B.load_state_dict(netD_B_checkpoint)
+else:
+    netG_A2B.apply(weights_init_normal)
+    netG_B2A.apply(weights_init_normal)
+    netD_A.apply(weights_init_normal)
+    netD_B.apply(weights_init_normal)
 
 # Lossess
 criterion_GAN = torch.nn.MSELoss()
